@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 using Reviews.Extensions;
+using System.IO;
 
 namespace Reviews
 {
@@ -11,6 +14,7 @@ namespace Reviews
     {
         public Startup(IConfiguration configuration)
         {
+            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
         }
 
@@ -21,6 +25,7 @@ namespace Reviews
         {
             services.ConfigureCors();
             services.ConfigureIISConfiguration();
+            services.ConfigureLoggerService();
 
             services.AddControllers();
         }
@@ -34,6 +39,15 @@ namespace Reviews
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
+
+            app.UseCors("CorsPoliscy");
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.All
+            });
 
             app.UseRouting();
 

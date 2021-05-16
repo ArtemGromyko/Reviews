@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Contracts;
+using LoggerService;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Reviews.Extensions
 {
@@ -18,5 +16,8 @@ namespace Reviews.Extensions
 
         public static void ConfigureIISConfiguration(this IServiceCollection services) =>
             services.Configure<IISOptions>(options => { });
+
+        public static void ConfigureLoggerService(this IServiceCollection services) =>
+            services.AddScoped<ILoggerManager, LoggerManager>();
     }
 }
