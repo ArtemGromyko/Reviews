@@ -26,6 +26,7 @@ namespace Reviews
             services.ConfigureCors();
             services.ConfigureIISConfiguration();
             services.ConfigureLoggerService();
+            services.ConfigureSqlContext(Configuration);
 
             services.AddControllers();
         }
