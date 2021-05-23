@@ -23,18 +23,9 @@ namespace Reviews.Controllers
         [HttpGet]
         public IActionResult GetPersons()
         {
-            try
-            {
-                var persons = _repository.Person.GetAllPersons(trackChanges: false);
+            var persons = _repository.Person.GetAllPersons(trackChanges: false);
 
-                return Ok(persons);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError($"Something went wrong in the {nameof(GetPersons)} action {ex}");
-
-                return StatusCode(500, "Internal server error.");
-            }
+            return Ok(persons);
         }
     }
 }
