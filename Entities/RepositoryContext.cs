@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using Entities.Configuration;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Entities
@@ -13,15 +14,9 @@ namespace Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>()
-                        .HasMany(p => p.Actors)
-                        .WithMany(p => p.ProductsActor)
-                        .UsingEntity(j => j.ToTable("ProductActor"));
-
-            modelBuilder.Entity<Product>()
-                        .HasMany(p => p.Directors)
-                        .WithMany(p => p.ProductsDirector)
-                        .UsingEntity(j => j.ToTable("ProductDirector"));
+            modelBuilder.ApplyConfiguration(new PersonConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new ReviewConfiguration());
         }
     }
 }
