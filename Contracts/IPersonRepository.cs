@@ -9,5 +9,6 @@ namespace Contracts
     {
         IEnumerable<Person> GetAllPersons(bool trackChanges);
         Person GetPerson(Guid personId, bool trackChanges);
+        void CreatePerson(Person person);
     }
 }

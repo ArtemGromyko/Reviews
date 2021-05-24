@@ -18,5 +18,7 @@ namespace Repository
 
         public Person GetPerson(Guid personId, bool trackChanges) =>
             FindByCondition(p => p.Id.Equals(personId), trackChanges).SingleOrDefault();
+
+        public void CreatePerson(Person person) => Create(person);
     }
 }
