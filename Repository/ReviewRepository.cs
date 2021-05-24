@@ -16,5 +16,7 @@ namespace Repository
 
         public Review GetReview(Guid productId, Guid id, bool trackChanges) =>
             FindByCondition(p => p.Id.Equals(id) && p.ProductId.Equals(productId), trackChanges).SingleOrDefault();
+
+        public void DeleteReview(Review review) => Delete(review);
     }
 }

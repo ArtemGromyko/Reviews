@@ -6,7 +6,11 @@ namespace Entities
 {
     public class RepositoryContext : DbContext
     {
-        public RepositoryContext(DbContextOptions options) : base(options) { }
+        public RepositoryContext(DbContextOptions options) : base(options) 
+        {
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
+        }
 
         public DbSet<Person> Persons { get; set; }
         public DbSet<Product> Products { get; set; }

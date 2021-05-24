@@ -57,5 +57,29 @@ namespace Reviews.Controllers
             var reviewDto = _mapper.Map<ReviewDto>(review);
             return Ok(reviewDto);
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteReviewForProduct(Guid productId, Guid id)
+        {
+            var product = _repository.Product.GetProduct(productId, false);
+            if(product == null)
+            {
+                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            var reviewForProduct = _repository.Review.GetReview(productId, id, false);
+            if(reviewForProduct == null)
+            {
+                _logger.LogInfo($"Review with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _repository.Review.DeleteReview(reviewForProduct);
+            _repository.Save();
+
+            return NoContent();
+        }
+
     }
 }
