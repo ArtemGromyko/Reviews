@@ -33,11 +33,11 @@ namespace Reviews.Controllers
             return Ok(productsDto);
         }
 
-        [HttpGet("{id}", Name ="ProductById")]
+        [HttpGet("{id}", Name = "ProductById")]
         public IActionResult GetProduct(Guid id)
         {
             var product = _repository.Product.GetProduct(id, false);
-            if(product == null)
+            if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -46,6 +46,38 @@ namespace Reviews.Controllers
             {
                 var productDto = _mapper.Map<ProductDto>(product);
                 return Ok(productDto);
+            }
+        }
+
+        [HttpGet("{id}/directors")]
+        public IActionResult GetDirectorsForProduct(Guid id)
+        {
+            var product = _repository.Product.GetProduct(id, false);
+            if (product == null)
+            {
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            else
+            {
+                var directors = _mapper.Map<IEnumerable<PersonDto>>(product.Directors);
+                return Ok(directors);
+            }
+        }
+
+        [HttpGet("{id}/actors")]
+        public IActionResult GetActorsForProduct(Guid id)
+        {
+            var product = _repository.Product.GetProduct(id, false);
+            if (product == null)
+            {
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            else
+            {
+                var actors = _mapper.Map<IEnumerable<PersonDto>>(product.Actors);
+                return Ok(actors);
             }
         }
 
