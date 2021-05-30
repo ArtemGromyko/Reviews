@@ -24,5 +24,7 @@ namespace Repository
             .Include(p => p.Directors)
             .Where(p => p.Id.Equals(productid))
             .SingleOrDefault();
+
+        public void CreateProduct(Product product) => Create(product);
     }
 }

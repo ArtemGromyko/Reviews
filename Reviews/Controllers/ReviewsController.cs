@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects.GET;
+using Entities.DataTransferObjects.POST;
+using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -38,7 +40,7 @@ namespace Reviews.Controllers
             return Ok(reviewsDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetReviewForProduct")]
         public IActionResult GetReviewForProduct(Guid productId, Guid id)
         {
             var product = _repository.Product.GetProduct(productId, false);
@@ -56,6 +58,32 @@ namespace Reviews.Controllers
             }
             var reviewDto = _mapper.Map<ReviewDto>(review);
             return Ok(reviewDto);
+        }
+
+        [HttpPost]
+        public IActionResult CreateReviewForProduct(Guid productId, [FromBody] ReviewForCreationDto review)
+        {
+            if (review == null)
+            {
+                _logger.LogError("ReviewForCreationDto object sent from client is null.");
+                return BadRequest("ReviewForCreationDto object is null.");
+            }
+
+            var product = _repository.Product.GetProduct(productId, false);
+            if (product == null)
+            {
+                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            var reviewEntity = _mapper.Map<Review>(review);
+
+            _repository.Review.CreateReviewForProduct(productId, reviewEntity);
+            _repository.Save();
+
+            var reviewDto = _mapper.Map<ReviewDto>(reviewEntity);
+
+            return CreatedAtRoute("GetReviewForProduct", new { productId, id = reviewDto.Id }, reviewDto);
         }
 
         [HttpDelete("{id}")]

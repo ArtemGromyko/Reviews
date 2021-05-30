@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects.GET;
+using Entities.DataTransferObjects.POST;
+using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -31,7 +33,7 @@ namespace Reviews.Controllers
             return Ok(productsDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name ="ProductById")]
         public IActionResult GetProduct(Guid id)
         {
             var product = _repository.Product.GetProduct(id, false);
@@ -45,6 +47,23 @@ namespace Reviews.Controllers
                 var productDto = _mapper.Map<ProductDto>(product);
                 return Ok(productDto);
             }
+        }
+
+        [HttpPost]
+        public IActionResult CreateProduct([FromBody] ProductForCreationDto product)
+        {
+            if (product == null)
+            {
+                _logger.LogError("ProductForCreationDto object sent from client is null.");
+                return BadRequest("ProductForCreationDto object is null.");
+            }
+
+            var productEntity = _mapper.Map<Product>(product);
+            _repository.Product.CreateProduct(productEntity);
+            _repository.Save();
+             
+            var productDto = _mapper.Map<ProductDto>(productEntity);
+            return CreatedAtRoute("ProductById", new { id = productDto.Id}, productDto); 
         }
     }
 }

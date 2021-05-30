@@ -8,8 +8,8 @@ namespace Entities
     {
         public RepositoryContext(DbContextOptions options) : base(options) 
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
+            /*Database.EnsureDeleted();
+            Database.EnsureCreated();*/
         }
 
         public DbSet<Person> Persons { get; set; }

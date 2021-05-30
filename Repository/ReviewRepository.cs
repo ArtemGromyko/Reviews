@@ -18,5 +18,11 @@ namespace Repository
             FindByCondition(p => p.Id.Equals(id) && p.ProductId.Equals(productId), trackChanges).SingleOrDefault();
 
         public void DeleteReview(Review review) => Delete(review);
+
+        public void CreateReviewForProduct(Guid productId, Review review)
+        {
+            review.ProductId = productId;
+            Create(review);
+        }
     }
 }
