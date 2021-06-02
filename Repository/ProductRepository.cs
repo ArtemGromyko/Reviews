@@ -26,5 +26,8 @@ namespace Repository
             .SingleOrDefault();
 
         public void CreateProduct(Product product) => Create(product);
+
+        public IEnumerable<Product> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
+            FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
     }
 }

@@ -8,6 +8,7 @@ namespace Contracts
     {
         IEnumerable<Review> GetReviews(Guid productId, bool trackChanges);
         Review GetReview(Guid productId, Guid id, bool trackChanges);
+        IEnumerable<Review> GetByIds(Guid productId, IEnumerable<Guid> ids, bool trackChanges);
         void CreateReviewForProduct(Guid productId, Review review);
         void DeleteReview(Review review);
     }

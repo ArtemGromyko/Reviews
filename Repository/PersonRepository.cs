@@ -20,5 +20,8 @@ namespace Repository
             FindByCondition(p => p.Id.Equals(personId), trackChanges).SingleOrDefault();
 
         public void CreatePerson(Person person) => Create(person);
+
+        public IEnumerable<Person> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
+            FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
     }
 }

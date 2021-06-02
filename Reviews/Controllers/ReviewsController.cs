@@ -4,8 +4,10 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reviews.Controllers
 {
@@ -60,6 +62,27 @@ namespace Reviews.Controllers
             return Ok(reviewDto);
         }
 
+        [HttpGet("collection/{ids}", Name = "ReviewCollection")]
+        public IActionResult GetReviewCollection(Guid productId, [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                _logger.LogError("Parameter ids is null.");
+                return BadRequest("Parameter ids is null.");
+            }
+
+            var reviewEntities = _repository.Review.GetByIds(productId, ids, false);
+
+            if (ids.Count() != reviewEntities.Count())
+            {
+                _logger.LogError("Some ids are not valid in a collection.");
+                return NotFound();
+            }
+
+            var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviewEntities);
+            return Ok(reviewsDto);
+        }
+
         [HttpPost]
         public IActionResult CreateReviewForProduct(Guid productId, [FromBody] ReviewForCreationDto review)
         {
@@ -84,6 +107,26 @@ namespace Reviews.Controllers
             var reviewDto = _mapper.Map<ReviewDto>(reviewEntity);
 
             return CreatedAtRoute("GetReviewForProduct", new { productId, id = reviewDto.Id }, reviewDto);
+        }
+
+        [HttpPost("collection")]
+        public IActionResult CreateReviewCollection(Guid productId, [FromBody] IEnumerable<ReviewForCreationDto> reviewCollection)
+        {
+            if (reviewCollection == null)
+            {
+                _logger.LogError("Product collection sent from client is null.");
+                return BadRequest("Product collection is null.");
+            }
+
+            var reviewEntities = _mapper.Map<IEnumerable<Review>>(reviewCollection);
+            foreach (var r in reviewEntities)
+                _repository.Review.CreateReviewForProduct(productId, r);
+            _repository.Save();
+
+            var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviewEntities);
+            var ids = string.Join(",", reviewsDto.Select(p => p.Id));
+
+            return CreatedAtRoute("ReviewCollection", new { productId, ids }, reviewsDto);
         }
 
         [HttpDelete("{id}")]

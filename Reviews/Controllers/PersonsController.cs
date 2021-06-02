@@ -4,8 +4,10 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reviews.Controllers
 {
@@ -50,6 +52,27 @@ namespace Reviews.Controllers
             }
         }
 
+        [HttpGet("collection/{ids}", Name = "PersonCollection")]
+        public IActionResult GetPersonCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                _logger.LogError("Parameter ids is null.");
+                return BadRequest("Parameter ids is null.");
+            }
+
+            var personEntities = _repository.Person.GetByIds(ids, false);
+
+            if (ids.Count() != personEntities.Count())
+            {
+                _logger.LogError("Some ids are not valid in a collection.");
+                return NotFound();
+            }
+
+            var personsDto = _mapper.Map<IEnumerable<PersonDto>>(personEntities);
+            return Ok(personsDto);
+        }
+
         [HttpPost]
         public IActionResult CreatePerson([FromBody]PersonForCreationDto person)
         {
@@ -67,6 +90,26 @@ namespace Reviews.Controllers
             var personToReturn = _mapper.Map<PersonDto>(personEntity);
 
             return CreatedAtRoute("PersonById", new { id = personToReturn.Id}, personToReturn);
+        }
+
+        [HttpPost("collection")]
+        public IActionResult CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
+        {
+            if (personCollection == null)
+            {
+                _logger.LogError("Product collection sent from client is null.");
+                return BadRequest("Product collection is null.");
+            }
+
+            var personEntities = _mapper.Map<IEnumerable<Person>>(personCollection);
+            foreach (var p in personEntities)
+                _repository.Person.CreatePerson(p);
+            _repository.Save();
+
+            var personsDto = _mapper.Map<IEnumerable<PersonDto>>(personEntities);
+            var ids = string.Join(",", personsDto.Select(p => p.Id));
+
+            return CreatedAtRoute("PersonCollection", new { ids }, personsDto);
         }
     }
 }

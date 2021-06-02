@@ -24,5 +24,8 @@ namespace Repository
             review.ProductId = productId;
             Create(review);
         }
+
+        public IEnumerable<Review> GetByIds(Guid productId, IEnumerable<Guid> ids, bool trackChanges) =>
+            FindByCondition(r => r.ProductId.Equals(productId) && ids.Contains(r.Id), trackChanges).ToList();
     }
 }

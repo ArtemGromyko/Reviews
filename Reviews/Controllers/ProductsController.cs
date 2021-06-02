@@ -4,8 +4,10 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reviews.Controllers
 {
@@ -81,6 +83,27 @@ namespace Reviews.Controllers
             }
         }
 
+        [HttpGet("collection/{ids}", Name = "ProductCollection")]
+        public IActionResult GetProductCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        {
+            if(ids == null)
+            {
+                _logger.LogError("Parameter ids is null.");
+                return BadRequest("Parameter ids is null.");
+            }
+
+            var productEntities = _repository.Product.GetByIds(ids, false);
+
+            if(ids.Count() != productEntities.Count())
+            {
+                _logger.LogError("Some ids are not valid in a collection.");
+                return NotFound();
+            }
+
+            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(productEntities);
+            return Ok(productsDto);
+        }
+
         [HttpPost]
         public IActionResult CreateProduct([FromBody] ProductForCreationDto product)
         {
@@ -96,6 +119,26 @@ namespace Reviews.Controllers
              
             var productDto = _mapper.Map<ProductDto>(productEntity);
             return CreatedAtRoute("ProductById", new { id = productDto.Id}, productDto); 
+        }
+
+        [HttpPost("collection")]
+        public IActionResult CreateProductCollection([FromBody]IEnumerable<ProductForCreationDto> productCollection)
+        {
+            if(productCollection == null)
+            {
+                _logger.LogError("Product collection sent from client is null.");
+                return BadRequest("Product collection is null.");
+            }
+
+            var productEntities = _mapper.Map<IEnumerable<Product>>(productCollection);
+            foreach (var p in productEntities)
+                _repository.Product.CreateProduct(p);
+            _repository.Save();
+
+            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(productEntities);
+            var ids = string.Join(",", productsDto.Select(p => p.Id));
+
+            return CreatedAtRoute("ProductCollection", new { ids }, productsDto);
         }
     }
 }
