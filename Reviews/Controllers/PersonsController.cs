@@ -4,6 +4,7 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ActionFilters;
 using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
@@ -74,14 +75,9 @@ namespace Reviews.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreatePerson([FromBody]PersonForCreationDto person)
         {
-            if(person == null)
-            {
-                _logger.LogError($"PersonForCreationDto object sent from client is null");
-                return BadRequest("PersonForCreationDto object is null.");
-            }
-
             var personEntity = _mapper.Map<Person>(person);
 
             _repository.Person.CreatePerson(personEntity);
@@ -93,14 +89,9 @@ namespace Reviews.Controllers
         }
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
         {
-            if (personCollection == null)
-            {
-                _logger.LogError("Product collection sent from client is null.");
-                return BadRequest("Product collection is null.");
-            }
-
             var personEntities = _mapper.Map<IEnumerable<Person>>(personCollection);
             foreach (var p in personEntities)
                 _repository.Person.CreatePerson(p);

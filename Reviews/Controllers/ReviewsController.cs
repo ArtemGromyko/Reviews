@@ -4,6 +4,7 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ActionFilters;
 using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreateReviewForProduct(Guid productId, [FromBody] ReviewForCreationDto review)
         {
             if (review == null)
@@ -110,6 +112,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreateReviewCollection(Guid productId, [FromBody] IEnumerable<ReviewForCreationDto> reviewCollection)
         {
             if (reviewCollection == null)

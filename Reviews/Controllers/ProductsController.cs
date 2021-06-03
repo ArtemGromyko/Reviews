@@ -4,6 +4,7 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Reviews.ActionFilters;
 using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
@@ -105,6 +106,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreateProduct([FromBody] ProductForCreationDto product)
         {
             if (product == null)
@@ -122,6 +124,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult CreateProductCollection([FromBody]IEnumerable<ProductForCreationDto> productCollection)
         {
             if(productCollection == null)

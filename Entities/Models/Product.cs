@@ -14,7 +14,7 @@ namespace Entities.Models
         [MaxLength(30, ErrorMessage = "Maximum length for the name is 30 characters.")]
         public string Name { get; set; }
 
-        [MaxLength(100, ErrorMessage = "Maximum length for the slogan is 60 characters.")]
+        [MaxLength(100, ErrorMessage = "Maximum length for the slogan is 100 characters.")]
         public string Slogan { get; set; }
 
         [Required(ErrorMessage = "Product release date is a required field.")]
