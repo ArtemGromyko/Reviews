@@ -1,14 +1,15 @@
 ﻿using Entities.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Contracts
 {
     public interface IReviewRepository
     {
-        IEnumerable<Review> GetReviews(Guid productId, bool trackChanges);
-        Review GetReview(Guid productId, Guid id, bool trackChanges);
-        IEnumerable<Review> GetByIds(Guid productId, IEnumerable<Guid> ids, bool trackChanges);
+        Task<IEnumerable<Review>> GetReviewsAsync(Guid productId, bool trackChanges);
+        Task<Review> GetReviewAsync(Guid productId, Guid id, bool trackChanges);
+        Task<IEnumerable<Review>> GetByIdsAsync(Guid productId, IEnumerable<Guid> ids, bool trackChanges);
         void CreateReviewForProduct(Guid productId, Review review);
         void DeleteReview(Review review);
     }

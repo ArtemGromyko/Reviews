@@ -1,9 +1,11 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -11,11 +13,11 @@ namespace Repository
     {
         public ReviewRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
-        public IEnumerable<Review> GetReviews(Guid productId, bool trackChanges) =>
-            FindByCondition(p => p.ProductId.Equals(productId), trackChanges).ToList();
+        public async Task<IEnumerable<Review>> GetReviewsAsync(Guid productId, bool trackChanges) =>
+            await FindByCondition(p => p.ProductId.Equals(productId), trackChanges).ToListAsync();
 
-        public Review GetReview(Guid productId, Guid id, bool trackChanges) =>
-            FindByCondition(p => p.Id.Equals(id) && p.ProductId.Equals(productId), trackChanges).SingleOrDefault();
+        public async Task<Review> GetReviewAsync(Guid productId, Guid id, bool trackChanges) =>
+            await FindByCondition(p => p.Id.Equals(id) && p.ProductId.Equals(productId), trackChanges).SingleOrDefaultAsync();
 
         public void DeleteReview(Review review) => Delete(review);
 
@@ -25,7 +27,7 @@ namespace Repository
             Create(review);
         }
 
-        public IEnumerable<Review> GetByIds(Guid productId, IEnumerable<Guid> ids, bool trackChanges) =>
-            FindByCondition(r => r.ProductId.Equals(productId) && ids.Contains(r.Id), trackChanges).ToList();
+        public async Task<IEnumerable<Review>> GetByIdsAsync(Guid productId, IEnumerable<Guid> ids, bool trackChanges) =>
+            await FindByCondition(r => r.ProductId.Equals(productId) && ids.Contains(r.Id), trackChanges).ToListAsync();
     }
 }

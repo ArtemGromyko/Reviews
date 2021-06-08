@@ -29,7 +29,7 @@ namespace Reviews
 
         private string GetNames(IEnumerable<Person> people)
         {   
-            if(people != null && people.Count() != 0  )
+            if(people != null && people.Count() != 0)
             {
                 var sb = new StringBuilder("");
 

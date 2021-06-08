@@ -1,4 +1,4 @@
-﻿
+﻿using System.Threading.Tasks;
 
 namespace Contracts
 {
@@ -7,6 +7,6 @@ namespace Contracts
         IProductRepository Product { get; }
         IPersonRepository Person { get; }
         IReviewRepository Review { get; }
-        void Save();
+        Task SaveAsync();
     }
 }

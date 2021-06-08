@@ -9,6 +9,7 @@ using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Reviews.Controllers
 {
@@ -28,18 +29,18 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetPersons()
+        public async Task<IActionResult> GetPersons()
         {
-            var persons = _repository.Person.GetAllPersons(trackChanges: false);
+            var persons = await _repository.Person.GetAllPersonsAsync(trackChanges: false);
             var personsDto = _mapper.Map<IEnumerable<PersonDto>>(persons);
 
             return Ok(personsDto);
         }
 
         [HttpGet("{id}", Name = "PersonById")]
-        public IActionResult GetPerson(Guid id)
+        public async Task<IActionResult> GetPerson(Guid id)
         {
-            var person = _repository.Person.GetPerson(id, false);
+            var person = await _repository.Person.GetPersonAsync(id, false);
 
             if(person == null)
             {
@@ -54,7 +55,7 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("collection/{ids}", Name = "PersonCollection")]
-        public IActionResult GetPersonCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetPersonCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             if (ids == null)
             {
@@ -62,7 +63,7 @@ namespace Reviews.Controllers
                 return BadRequest("Parameter ids is null.");
             }
 
-            var personEntities = _repository.Person.GetByIds(ids, false);
+            var personEntities = await _repository.Person.GetByIdsAsync(ids, false);
 
             if (ids.Count() != personEntities.Count())
             {
@@ -76,12 +77,12 @@ namespace Reviews.Controllers
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public IActionResult CreatePerson([FromBody]PersonForCreationDto person)
+        public async Task<IActionResult> CreatePerson([FromBody]PersonForCreationDto person)
         {
             var personEntity = _mapper.Map<Person>(person);
 
             _repository.Person.CreatePerson(personEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var personToReturn = _mapper.Map<PersonDto>(personEntity);
 
@@ -90,12 +91,12 @@ namespace Reviews.Controllers
 
         [HttpPost("collection")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public IActionResult CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
+        public async Task<IActionResult> CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
         {
             var personEntities = _mapper.Map<IEnumerable<Person>>(personCollection);
             foreach (var p in personEntities)
                 _repository.Person.CreatePerson(p);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var personsDto = _mapper.Map<IEnumerable<PersonDto>>(personEntities);
             var ids = string.Join(",", personsDto.Select(p => p.Id));

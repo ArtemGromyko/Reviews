@@ -32,7 +32,16 @@ namespace Entities.Models
         [MaxLength(15, ErrorMessage = "Maximum length for the category is 20 characters.")]
         public string Category { get; set; }
 
-        //public double Raiting { get; } 
+        /*public double Raiting
+        {
+            get
+            {
+                foreach (var r in Reviews)
+                {
+                    r.
+                }
+            }
+        }*/
 
         public IEnumerable<Review> Reviews { get; set; }
 

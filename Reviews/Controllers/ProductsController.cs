@@ -9,6 +9,7 @@ using Reviews.ModelBinders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Reviews.Controllers
 {
@@ -28,18 +29,18 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            var products = _repository.Product.GetAllProducts(false);
+            var products = await _repository.Product.GetAllProductsAsync(false);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
 
             return Ok(productsDto);
         }
 
         [HttpGet("{id}", Name = "ProductById")]
-        public IActionResult GetProduct(Guid id)
+        public async Task<IActionResult> GetProduct(Guid id)
         {
-            var product = _repository.Product.GetProduct(id, false);
+            var product = await _repository.Product.GetProductAsync(id, false);
             if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
@@ -53,9 +54,9 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("{id}/directors")]
-        public IActionResult GetDirectorsForProduct(Guid id)
+        public async Task<IActionResult> GetDirectorsForProduct(Guid id)
         {
-            var product = _repository.Product.GetProduct(id, false);
+            var product = await _repository.Product.GetProductAsync(id, false);
             if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
@@ -69,9 +70,9 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("{id}/actors")]
-        public IActionResult GetActorsForProduct(Guid id)
+        public async Task<IActionResult> GetActorsForProduct(Guid id)
         {
-            var product = _repository.Product.GetProduct(id, false);
+            var product = await _repository.Product.GetProductAsync(id, false);
             if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
@@ -85,7 +86,7 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("collection/{ids}", Name = "ProductCollection")]
-        public IActionResult GetProductCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetProductCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
         {
             if(ids == null)
             {
@@ -93,7 +94,7 @@ namespace Reviews.Controllers
                 return BadRequest("Parameter ids is null.");
             }
 
-            var productEntities = _repository.Product.GetByIds(ids, false);
+            var productEntities = await _repository.Product.GetByIdsAsync(ids, false);
 
             if(ids.Count() != productEntities.Count())
             {
@@ -107,7 +108,7 @@ namespace Reviews.Controllers
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public IActionResult CreateProduct([FromBody] ProductForCreationDto product)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductForCreationDto product)
         {
             if (product == null)
             {
@@ -117,7 +118,7 @@ namespace Reviews.Controllers
 
             var productEntity = _mapper.Map<Product>(product);
             _repository.Product.CreateProduct(productEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
              
             var productDto = _mapper.Map<ProductDto>(productEntity);
             return CreatedAtRoute("ProductById", new { id = productDto.Id}, productDto); 
@@ -125,7 +126,7 @@ namespace Reviews.Controllers
 
         [HttpPost("collection")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public IActionResult CreateProductCollection([FromBody]IEnumerable<ProductForCreationDto> productCollection)
+        public async Task<IActionResult> CreateProductCollection([FromBody]IEnumerable<ProductForCreationDto> productCollection)
         {
             if(productCollection == null)
             {
@@ -136,7 +137,7 @@ namespace Reviews.Controllers
             var productEntities = _mapper.Map<IEnumerable<Product>>(productCollection);
             foreach (var p in productEntities)
                 _repository.Product.CreateProduct(p);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(productEntities);
             var ids = string.Join(",", productsDto.Select(p => p.Id));

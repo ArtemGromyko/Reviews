@@ -1,9 +1,11 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -11,17 +13,17 @@ namespace Repository
     {
         public PersonRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
-        public IEnumerable<Person> GetAllPersons(bool trackChanges) =>
-            FindAll(trackChanges)
+        public async Task<IEnumerable<Person>> GetAllPersonsAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
             .OrderBy(p => p.Name)
-            .ToList();
+            .ToListAsync();
 
-        public Person GetPerson(Guid personId, bool trackChanges) =>
-            FindByCondition(p => p.Id.Equals(personId), trackChanges).SingleOrDefault();
+        public async Task<Person> GetPersonAsync(Guid personId, bool trackChanges) =>
+            await FindByCondition(p => p.Id.Equals(personId), trackChanges).SingleOrDefaultAsync();
 
         public void CreatePerson(Person person) => Create(person);
 
-        public IEnumerable<Person> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
-            FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
+        public async Task<IEnumerable<Person>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
+            await FindByCondition(x => ids.Contains(x.Id), trackChanges).ToListAsync();
     }
 }

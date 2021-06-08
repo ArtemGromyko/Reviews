@@ -1,15 +1,15 @@
 ﻿using Entities.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace Contracts
 {
     public interface IProductRepository
     {
-        IEnumerable<Product> GetAllProducts(bool trackChanges);
-        Product GetProduct(Guid productId, bool trackChanges);
-        IEnumerable<Product> GetByIds(IEnumerable<Guid> ids, bool trackChanges);
+        Task<IEnumerable<Product>> GetAllProductsAsync(bool trackChanges);
+        Task<Product> GetProductAsync(Guid productId, bool trackChanges);
+        Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
         void CreateProduct(Product product);
     }
 }

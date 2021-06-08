@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -12,22 +13,22 @@ namespace Repository
     {
         public ProductRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
-        public IEnumerable<Product> GetAllProducts(bool trackChanges) =>
-            FindAll(trackChanges)
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
             .Include(p => p.Actors)
             .Include(p => p.Directors)
-            .ToList();
+            .ToListAsync();
 
-        public Product GetProduct(Guid productid, bool trackChanges) =>
-            FindAll(trackChanges)
+        public async Task<Product> GetProductAsync(Guid productid, bool trackChanges) =>
+            await FindAll(trackChanges)
             .Include(p => p.Actors)
             .Include(p => p.Directors)
             .Where(p => p.Id.Equals(productid))
-            .SingleOrDefault();
+            .SingleOrDefaultAsync();
 
         public void CreateProduct(Product product) => Create(product);
 
-        public IEnumerable<Product> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
-            FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
+        public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
+            await FindByCondition(x => ids.Contains(x.Id), trackChanges).ToListAsync();
     }
 }
