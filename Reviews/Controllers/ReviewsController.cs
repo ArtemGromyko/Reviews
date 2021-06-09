@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
+using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using Reviews.ActionFilters;
@@ -156,5 +157,29 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
+
+        [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateReviewForProduct(Guid productId, Guid id, [FromBody]ReviewForUpdateDto review)
+        {
+            var product = await _repository.Product.GetProductAsync(productId, false);
+            if(product == null)
+            {
+                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            var reviewEntity = await _repository.Review.GetReviewAsync(productId, id, true);
+            if(reviewEntity == null)
+            {
+                _logger.LogInfo($"Review with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _mapper.Map(review, reviewEntity);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
     }
 }

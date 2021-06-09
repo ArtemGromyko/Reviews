@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
+using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +22,12 @@ namespace Reviews
             CreateMap<Review, ReviewDto>();
 
             CreateMap<PersonForCreationDto, Person>();
-
             CreateMap<ProductForCreationDto, Product>();
-
             CreateMap<ReviewForCreationDto, Review>();
+
+            CreateMap<PersonForUpdateDto, Person>();
+            CreateMap<ProductForUpdateDto, Product>();
+            CreateMap<ReviewForUpdateDto, Review>();
         }
 
         private string GetNames(IEnumerable<Person> people)

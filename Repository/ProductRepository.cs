@@ -30,5 +30,7 @@ namespace Repository
 
         public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
             await FindByCondition(x => ids.Contains(x.Id), trackChanges).ToListAsync();
+
+        public void DeleteProduct(Product product) => Delete(product);
     }
 }

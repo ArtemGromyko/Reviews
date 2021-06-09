@@ -1,9 +1,10 @@
 ﻿using Entities.DataTransferObjects.ManipulationDto;
+using Entities.DataTransferObjects.POST;
 using System.Collections.Generic;
 
-namespace Entities.DataTransferObjects.POST
+namespace Entities.DataTransferObjects.PUT
 {
-    public class ProductForCreationDto : ProductForManipulationDto
+    public class ProductForUpdateDto : ProductForManipulationDto
     {
         public IEnumerable<ReviewForCreationDto> Reviews { get; set; }
         public IEnumerable<PersonForCreationDto> Actors { get; set; }

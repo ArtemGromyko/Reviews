@@ -11,5 +11,6 @@ namespace Contracts
         Task<Product> GetProductAsync(Guid productId, bool trackChanges);
         Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
         void CreateProduct(Product product);
+        void DeleteProduct(Product product);
     }
 }

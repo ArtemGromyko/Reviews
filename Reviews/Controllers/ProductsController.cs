@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
+using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using Reviews.ActionFilters;
@@ -86,9 +87,9 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("collection/{ids}", Name = "ProductCollection")]
-        public async Task<IActionResult> GetProductCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetProductCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
-            if(ids == null)
+            if (ids == null)
             {
                 _logger.LogError("Parameter ids is null.");
                 return BadRequest("Parameter ids is null.");
@@ -96,7 +97,7 @@ namespace Reviews.Controllers
 
             var productEntities = await _repository.Product.GetByIdsAsync(ids, false);
 
-            if(ids.Count() != productEntities.Count())
+            if (ids.Count() != productEntities.Count())
             {
                 _logger.LogError("Some ids are not valid in a collection.");
                 return NotFound();
@@ -119,16 +120,16 @@ namespace Reviews.Controllers
             var productEntity = _mapper.Map<Product>(product);
             _repository.Product.CreateProduct(productEntity);
             await _repository.SaveAsync();
-             
+
             var productDto = _mapper.Map<ProductDto>(productEntity);
-            return CreatedAtRoute("ProductById", new { id = productDto.Id}, productDto); 
+            return CreatedAtRoute("ProductById", new { id = productDto.Id }, productDto);
         }
 
         [HttpPost("collection")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateProductCollection([FromBody]IEnumerable<ProductForCreationDto> productCollection)
+        public async Task<IActionResult> CreateProductCollection([FromBody] IEnumerable<ProductForCreationDto> productCollection)
         {
-            if(productCollection == null)
+            if (productCollection == null)
             {
                 _logger.LogError("Product collection sent from client is null.");
                 return BadRequest("Product collection is null.");
@@ -143,6 +144,39 @@ namespace Reviews.Controllers
             var ids = string.Join(",", productsDto.Select(p => p.Id));
 
             return CreatedAtRoute("ProductCollection", new { ids }, productsDto);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            var product = await _repository.Product.GetProductAsync(id, false);
+            if(product == null)
+            {
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _repository.Product.DeleteProduct(product);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody]ProductForUpdateDto product)
+        {
+            var productEntity = await _repository.Product.GetProductAsync(id, true);
+            if(productEntity == null)
+            {
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _mapper.Map(product, productEntity);
+            await _repository.SaveAsync();
+
+            return NoContent();
         }
     }
 }

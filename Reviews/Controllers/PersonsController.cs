@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
+using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using Reviews.ActionFilters;
@@ -102,6 +103,39 @@ namespace Reviews.Controllers
             var ids = string.Join(",", personsDto.Select(p => p.Id));
 
             return CreatedAtRoute("PersonCollection", new { ids }, personsDto);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePerson(Guid id)
+        {
+            var person = await _repository.Person.GetPersonAsync(id, false);
+            if(person == null)
+            {
+                _logger.LogInfo($"Person with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _repository.Person.DeletePerson(person);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdatePerson(Guid id, [FromBody]PersonForUpdateDto person)
+        {
+            var personEntity = await _repository.Person.GetPersonAsync(id, true);
+            if(personEntity == null)
+            {
+                _logger.LogInfo($"Person with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _mapper.Map(person, personEntity);
+            await _repository.SaveAsync();
+
+            return NoContent();
         }
     }
 }

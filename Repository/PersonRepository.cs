@@ -25,5 +25,7 @@ namespace Repository
 
         public async Task<IEnumerable<Person>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
             await FindByCondition(x => ids.Contains(x.Id), trackChanges).ToListAsync();
+
+        public void DeletePerson(Person person) => Delete(person);
     }
 }

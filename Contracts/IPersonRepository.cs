@@ -11,5 +11,6 @@ namespace Contracts
         Task<Person> GetPersonAsync(Guid personId, bool trackChanges);
         Task<IEnumerable<Person>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
         void CreatePerson(Person person);
+        void DeletePerson(Person person);
     }
 }
