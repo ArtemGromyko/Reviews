@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Reviews.ActionFilters
 {
-    public class ValidationFilterAttribute : IActionFilter
+    public class ValidationNullArgumentAttribute : IActionFilter
     {
         private readonly ILoggerManager _logger;
 
-        public ValidationFilterAttribute(ILoggerManager logger)
+        public ValidationNullArgumentAttribute(ILoggerManager logger)
         {
             _logger = logger;
         }
@@ -19,10 +19,14 @@ namespace Reviews.ActionFilters
             var action = context.RouteData.Values["action"];
             var controller = context.RouteData.Values["controller"];
 
-            if (!context.ModelState.IsValid)
+            var param = context.ActionArguments
+                               .SingleOrDefault(x => x.Value.ToString().Contains("Dto"))
+                               .Value;
+            if (param == null)
             {
-                _logger.LogError($"Invalid model state for the object. Controller: {controller}, action: {action}");
-                context.Result = new UnprocessableEntityObjectResult(context.ModelState);
+                _logger.LogError($"Object sent from client is null. Controller: {controller}, action: {action}");
+                context.Result = new BadRequestObjectResult($"Object is null. Controller: {controller}, action: {action}");
+                return;
             }
         }
 

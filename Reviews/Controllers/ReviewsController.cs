@@ -4,6 +4,7 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Reviews.ActionFilters;
 using Reviews.ModelBinders;
@@ -30,15 +31,9 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> GetReviewsForProduct(Guid productId)
         {
-            var product = await _repository.Product.GetProductAsync(productId, false);
-            if(product == null)
-            {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
-                return NotFound();
-            }
-
             var reviews = await _repository.Review.GetReviewsAsync(productId, false);
             var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
@@ -46,22 +41,12 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("{id}", Name = "GetReviewForProduct")]
-        public async Task <IActionResult> GetReviewForProduct(Guid productId, Guid id)
+        [ServiceFilter(typeof(ValidationReviewForProductExistsAttribute))]
+        public IActionResult GetReviewForProduct(Guid productId, Guid id)
         {
-            var product = await _repository.Product.GetProductAsync(productId, false);
-            if(product == null)
-            {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
-                return NotFound();
-            }
-
-            var review = await _repository.Review.GetReviewAsync(productId, id, false);
-            if(review == null)
-            {
-                _logger.LogInfo($"Review with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var review = HttpContext.Items["review"] as Review;
             var reviewDto = _mapper.Map<ReviewDto>(review);
+
             return Ok(reviewDto);
         }
 
@@ -87,22 +72,11 @@ namespace Reviews.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> CreateReviewForProduct(Guid productId, [FromBody] ReviewForCreationDto review)
         {
-            if (review == null)
-            {
-                _logger.LogError("ReviewForCreationDto object sent from client is null.");
-                return BadRequest("ReviewForCreationDto object is null.");
-            }
-
-            var product = await _repository.Product.GetProductAsync(productId, false);
-            if (product == null)
-            {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
-                return NotFound();
-            }
-
             var reviewEntity = _mapper.Map<Review>(review);
 
             _repository.Review.CreateReviewForProduct(productId, reviewEntity);
@@ -114,15 +88,11 @@ namespace Reviews.Controllers
         }
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> CreateReviewCollection(Guid productId, [FromBody] IEnumerable<ReviewForCreationDto> reviewCollection)
         {
-            if (reviewCollection == null)
-            {
-                _logger.LogError("Product collection sent from client is null.");
-                return BadRequest("Product collection is null.");
-            }
-
             var reviewEntities = _mapper.Map<IEnumerable<Review>>(reviewCollection);
             foreach (var r in reviewEntities)
                 _repository.Review.CreateReviewForProduct(productId, r);
@@ -135,21 +105,10 @@ namespace Reviews.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ServiceFilter(typeof(ValidationReviewForProductExistsAttribute))]
         public async Task<IActionResult> DeleteReviewForProduct(Guid productId, Guid id)
         {
-            var product = await _repository.Product.GetProductAsync(productId, false);
-            if(product == null)
-            {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
-                return NotFound();
-            }
-
-            var reviewForProduct = await _repository.Review.GetReviewAsync(productId, id, false);
-            if(reviewForProduct == null)
-            {
-                _logger.LogInfo($"Review with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var reviewForProduct = HttpContext.Items["review"] as Review;
 
             _repository.Review.DeleteReview(reviewForProduct);
             await _repository.SaveAsync();
@@ -159,27 +118,18 @@ namespace Reviews.Controllers
 
 
         [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateReviewForProduct(Guid productId, Guid id, [FromBody]ReviewForUpdateDto review)
         {
-            var product = await _repository.Product.GetProductAsync(productId, false);
-            if(product == null)
-            {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
-                return NotFound();
-            }
-
-            var reviewEntity = await _repository.Review.GetReviewAsync(productId, id, true);
-            if(reviewEntity == null)
-            {
-                _logger.LogInfo($"Review with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var reviewEntity = HttpContext.Items["entity"] as Review;
 
             _mapper.Map(review, reviewEntity);
             await _repository.SaveAsync();
 
             return NoContent();
         }
+
+        
     }
 }

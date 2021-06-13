@@ -39,20 +39,13 @@ namespace Reviews.Controllers
         }
 
         [HttpGet("{id}", Name = "PersonById")]
-        public async Task<IActionResult> GetPerson(Guid id)
+        [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
+        public IActionResult GetPerson(Guid id)
         {
-            var person = await _repository.Person.GetPersonAsync(id, false);
+            var person = HttpContext.Items["person"] as Person;
 
-            if(person == null)
-            {
-                _logger.LogInfo($"Person with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
-            else
-            {
-                var personDto = _mapper.Map<PersonDto>(person);
-                return Ok(personDto);
-            }
+            var personDto = _mapper.Map<PersonDto>(person);
+            return Ok(personDto);
         }
 
         [HttpGet("collection/{ids}", Name = "PersonCollection")]
@@ -77,6 +70,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreatePerson([FromBody]PersonForCreationDto person)
         {
@@ -91,6 +85,7 @@ namespace Reviews.Controllers
         }
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
         {
@@ -106,14 +101,10 @@ namespace Reviews.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
         public async Task<IActionResult> DeletePerson(Guid id)
         {
-            var person = await _repository.Person.GetPersonAsync(id, false);
-            if(person == null)
-            {
-                _logger.LogInfo($"Person with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var person = HttpContext.Items["person"] as Person;
 
             _repository.Person.DeletePerson(person);
             await _repository.SaveAsync();
@@ -122,15 +113,12 @@ namespace Reviews.Controllers
         }
 
         [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
         public async Task<IActionResult> UpdatePerson(Guid id, [FromBody]PersonForUpdateDto person)
         {
-            var personEntity = await _repository.Person.GetPersonAsync(id, true);
-            if(personEntity == null)
-            {
-                _logger.LogInfo($"Person with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var personEntity = HttpContext.Items["person"] as Person;
 
             _mapper.Map(person, personEntity);
             await _repository.SaveAsync();
