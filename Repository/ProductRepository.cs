@@ -1,6 +1,8 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Models;
+using Entities.RequestFeatures;
+using Entities.RequestFeatures.Parameters;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,11 +15,15 @@ namespace Repository
     {
         public ProductRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(bool trackChanges) =>
-            await FindAll(trackChanges)
-            .Include(p => p.Actors)
-            .Include(p => p.Directors)
-            .ToListAsync();
+        public async Task<PagedList<Product>> GetAllProductsAsync(ProductParameters productParameters, bool trackChanges)
+        {
+            var products = await FindAll(trackChanges)
+                .Include(p => p.Actors)
+                .Include(p => p.Directors)
+                .ToListAsync();
+
+            return PagedList<Product>.ToPagedList(products, productParameters.PageNumber, productParameters.PageSize);
+        }
 
         public async Task<Product> GetProductAsync(Guid productid, bool trackChanges) =>
             await FindAll(trackChanges)

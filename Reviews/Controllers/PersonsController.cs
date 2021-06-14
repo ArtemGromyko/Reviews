@@ -4,8 +4,10 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
+using Entities.RequestFeatures.Parameters;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Reviews.ActionFilters;
 using Reviews.ModelBinders;
 using System;
@@ -31,9 +33,12 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPersons()
+        public async Task<IActionResult> GetPersons([FromQuery]PersonParameters personParameters)
         {
-            var persons = await _repository.Person.GetAllPersonsAsync(trackChanges: false);
+            var persons = await _repository.Person.GetAllPersonsAsync(personParameters, false);
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(persons.MetaData));
+
             var personsDto = _mapper.Map<IEnumerable<PersonDto>>(persons);
 
             return Ok(personsDto);

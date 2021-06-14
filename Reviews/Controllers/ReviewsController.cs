@@ -4,8 +4,10 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Reviews.ActionFilters;
 using Reviews.ModelBinders;
 using System;
@@ -32,9 +34,12 @@ namespace Reviews.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
-        public async Task<IActionResult> GetReviewsForProduct(Guid productId)
+        public async Task<IActionResult> GetReviewsForProduct(Guid productId, [FromQuery] ReviewParameters reviewParameters)
         {
-            var reviews = await _repository.Review.GetReviewsAsync(productId, false);
+            var reviews = await _repository.Review.GetReviewsAsync(productId, reviewParameters, false);
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(reviews.MetaData));
+
             var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
             return Ok(reviewsDto);

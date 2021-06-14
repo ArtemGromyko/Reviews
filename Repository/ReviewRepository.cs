@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,13 @@ namespace Repository
     {
         public ReviewRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
-        public async Task<IEnumerable<Review>> GetReviewsAsync(Guid productId, bool trackChanges) =>
-            await FindByCondition(p => p.ProductId.Equals(productId), trackChanges).ToListAsync();
+        public async Task<PagedList<Review>> GetReviewsAsync(Guid productId, ReviewParameters reviewParameters, bool trackChanges)
+        {
+            var reviews = await FindByCondition(p => p.ProductId.Equals(productId), trackChanges)
+            .ToListAsync();
+
+            return PagedList<Review>.ToPagedList(reviews, reviewParameters.PageNumber, reviewParameters.PageSize);
+        }
 
         public async Task<Review> GetReviewAsync(Guid productId, Guid id, bool trackChanges) =>
             await FindByCondition(p => p.Id.Equals(id) && p.ProductId.Equals(productId), trackChanges).SingleOrDefaultAsync();
