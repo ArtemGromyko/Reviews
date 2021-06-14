@@ -21,13 +21,13 @@ namespace Reviews
 
             CreateMap<Review, ReviewDto>();
 
-            CreateMap<PersonForCreationDto, Person>();
-            CreateMap<ProductForCreationDto, Product>();
-            CreateMap<ReviewForCreationDto, Review>();
+            CreateMap<PersonForCreationDto, Person>().ReverseMap();
+            CreateMap<ProductForCreationDto, Product>().ReverseMap();
+            CreateMap<ReviewForCreationDto, Review>().ReverseMap();
 
-            CreateMap<PersonForUpdateDto, Person>();
-            CreateMap<ProductForUpdateDto, Product>();
-            CreateMap<ReviewForUpdateDto, Review>();
+            CreateMap<PersonForUpdateDto, Person>().ReverseMap();
+            CreateMap<ProductForUpdateDto, Product>().ReverseMap();
+            CreateMap<ReviewForUpdateDto, Review>().ReverseMap();
         }
 
         private string GetNames(IEnumerable<Person> people)

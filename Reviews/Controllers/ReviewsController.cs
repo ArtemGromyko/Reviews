@@ -130,6 +130,29 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        
+        [HttpPatch("{id}")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
+        [ServiceFilter(typeof(ValidationReviewForProductExistsAttribute))]
+        public async Task<IActionResult> PartiallyUpdateReviewForProduct(Guid productId, Guid id,
+        [FromBody] JsonPatchDocument<ReviewForUpdateDto> patchDoc)
+        {
+            var reviewEntity = HttpContext.Items["review"] as Review;
+
+            var reviewToPatch = _mapper.Map<ReviewForUpdateDto>(reviewEntity);
+
+            patchDoc.ApplyTo(reviewToPatch, ModelState);
+            TryValidateModel(reviewToPatch);
+            if(!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the patch document");
+                return UnprocessableEntity(ModelState);
+            }
+
+            _mapper.Map(reviewToPatch, reviewEntity);
+
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
     }
 }

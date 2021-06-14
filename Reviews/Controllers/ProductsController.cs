@@ -4,6 +4,7 @@ using Entities.DataTransferObjects.GET;
 using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Reviews.ActionFilters;
 using Reviews.ModelBinders;
@@ -140,6 +141,29 @@ namespace Reviews.Controllers
             var productEntity = HttpContext.Items["product"] as Product;
 
             _mapper.Map(product, productEntity);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
+        [ServiceFilter(typeof(ValidationProductExistsAttribute))]
+        public async Task<IActionResult> PartiallyUpdateProduct(Guid id, [FromBody]JsonPatchDocument<ProductForUpdateDto> patchDoc)
+        {
+            var productEntity = HttpContext.Items["product"] as Product;
+
+            var productToPatch = _mapper.Map<ProductForUpdateDto>(productEntity);
+            patchDoc.ApplyTo(productToPatch, ModelState);
+            TryValidateModel(productToPatch);
+            if(!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the patch document");
+                return UnprocessableEntity(ModelState);
+            }
+
+            _mapper.Map(productToPatch, productEntity);
+
             await _repository.SaveAsync();
 
             return NoContent();
