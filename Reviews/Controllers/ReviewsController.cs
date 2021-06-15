@@ -36,6 +36,9 @@ namespace Reviews.Controllers
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> GetReviewsForProduct(Guid productId, [FromQuery] ReviewParameters reviewParameters)
         {
+            if (!reviewParameters.ValidRaitingRange)
+                return BadRequest("Max raiting can't be less than min raiting and more than 10.");
+
             var reviews = await _repository.Review.GetReviewsAsync(productId, reviewParameters, false);
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(reviews.MetaData));

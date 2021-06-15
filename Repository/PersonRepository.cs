@@ -4,6 +4,7 @@ using Entities.Models;
 using Entities.RequestFeatures;
 using Entities.RequestFeatures.Parameters;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,9 @@ namespace Repository
         public async Task<PagedList<Person>> GetAllPersonsAsync(PersonParameters personParameters, bool trackChanges)
         {
             var persons = await FindAll(trackChanges)
+                .FilterPersons(personParameters.MinBirthDate, personParameters.MaxBirthDate, personParameters.BirthPlace,
+                personParameters.MinHeight, personParameters.MaxHeight)
+                .Search(personParameters.SearchTerm)
                 .OrderBy(p => p.Name)
                 .ToListAsync();
 

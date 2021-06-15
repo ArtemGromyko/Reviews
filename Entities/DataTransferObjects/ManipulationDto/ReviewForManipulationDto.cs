@@ -6,7 +6,7 @@ namespace Entities.DataTransferObjects.ManipulationDto
     public abstract class ReviewForManipulationDto
     {
         [Required(ErrorMessage = "Review is a reqired field.")]
-        [MaxLength(30, ErrorMessage = "Maximum length for the heading is 30 characters.")]
+        [MaxLength(100, ErrorMessage = "Maximum length for the heading is 100 characters.")]
         public string Heading { get; set; }
         [Required(ErrorMessage = "Text is a reqired field.")]
         [MaxLength(1000, ErrorMessage = "Maximum length for the text is 1000 characters.")]

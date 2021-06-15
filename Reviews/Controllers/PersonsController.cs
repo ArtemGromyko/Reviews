@@ -35,6 +35,9 @@ namespace Reviews.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPersons([FromQuery]PersonParameters personParameters)
         {
+            if (!personParameters.ValidParametersRange)
+                return BadRequest("Max birth date can't be lower than min birth date and max height can't be lower than min height.");
+
             var persons = await _repository.Person.GetAllPersonsAsync(personParameters, false);
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(persons.MetaData));

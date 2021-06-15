@@ -3,6 +3,7 @@ using Entities;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,9 @@ namespace Repository
         public async Task<PagedList<Review>> GetReviewsAsync(Guid productId, ReviewParameters reviewParameters, bool trackChanges)
         {
             var reviews = await FindByCondition(p => p.ProductId.Equals(productId), trackChanges)
-            .ToListAsync();
+                .FilterReviews(reviewParameters.MinRaiting, reviewParameters.MaxRaiting)
+                .Search(reviewParameters.SearchTerm)
+                .ToListAsync();
 
             return PagedList<Review>.ToPagedList(reviews, reviewParameters.PageNumber, reviewParameters.PageSize);
         }

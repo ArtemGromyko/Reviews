@@ -10,7 +10,7 @@ namespace Entities.Models
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Review is a reqired field.")]
-        [MaxLength(30, ErrorMessage = "Maximum length for the heading is 30 characters.")]
+        [MaxLength(100, ErrorMessage = "Maximum length for the heading is 100 characters.")]
         public string Heading { get; set; }
 
         [Required(ErrorMessage = "Text is a reqired field.")]

@@ -4,6 +4,7 @@ using Entities.Models;
 using Entities.RequestFeatures;
 using Entities.RequestFeatures.Parameters;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,9 @@ namespace Repository
             var products = await FindAll(trackChanges)
                 .Include(p => p.Actors)
                 .Include(p => p.Directors)
+                .FilterProducts(productParameters.Categories, productParameters.Genres, productParameters.Countries)
+                .Search(productParameters.SearchTerm)
+                .AsSplitQuery()
                 .ToListAsync();
 
             return PagedList<Product>.ToPagedList(products, productParameters.PageNumber, productParameters.PageSize);
