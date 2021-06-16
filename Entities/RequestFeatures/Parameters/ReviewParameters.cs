@@ -4,6 +4,10 @@ namespace Entities.RequestFeatures
 {
     public class ReviewParameters : RequestParameters
     {
+        public ReviewParameters()
+        {
+            OrderBy = "heading";
+        }
         public uint MaxRaiting { get; set; } = 10;
         public uint MinRaiting { get; set; }
         public bool ValidRaitingRange => MaxRaiting > MinRaiting && MaxRaiting <= 10;

@@ -22,7 +22,7 @@ namespace Repository
                 .FilterPersons(personParameters.MinBirthDate, personParameters.MaxBirthDate, personParameters.BirthPlace,
                 personParameters.MinHeight, personParameters.MaxHeight)
                 .Search(personParameters.SearchTerm)
-                .OrderBy(p => p.Name)
+                .Sort(personParameters.OrderBy)
                 .ToListAsync();
 
             return PagedList<Person>.ToPagedList(persons, personParameters.PageNumber, personParameters.PageSize);

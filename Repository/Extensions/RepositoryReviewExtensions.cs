@@ -1,5 +1,7 @@
 ﻿using Entities.Models;
+using Repository.Extensions.Utility;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 
 namespace Repository.Extensions
 {
@@ -16,6 +18,19 @@ namespace Repository.Extensions
             var lowerCaseTerm = searchTearm.Trim().ToLower();
 
             return reviews.Where(r => r.Heading.ToLower().Contains(lowerCaseTerm));
+        }
+
+        public static IQueryable<Review> Sort(this IQueryable<Review> reviews, string orderByQueryString)
+        {
+            if (string.IsNullOrWhiteSpace(orderByQueryString))
+                return reviews.OrderBy(r => r.Heading);
+
+            var orderQuery = OrderQueryBuilder.CreateOrderQuery<Review>(orderByQueryString);
+
+            if (string.IsNullOrWhiteSpace(orderQuery))
+                return reviews.OrderBy(r => r.Heading);
+
+            return reviews.OrderBy(orderQuery);
         }
     }
 }

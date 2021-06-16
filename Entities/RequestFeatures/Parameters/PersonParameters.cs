@@ -6,6 +6,10 @@ namespace Entities.RequestFeatures.Parameters
 {
     public class PersonParameters : RequestParameters
     {
+        public PersonParameters()
+        {
+            OrderBy = "name";
+        }
         public DateTime MinBirthDate { get; set; } = DateTime.MinValue;
         public DateTime MaxBirthDate { get; set; } = DateTime.MaxValue;
         public string BirthPlace { get; set; }

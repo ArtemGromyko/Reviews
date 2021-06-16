@@ -20,6 +20,7 @@ namespace Repository
             var reviews = await FindByCondition(p => p.ProductId.Equals(productId), trackChanges)
                 .FilterReviews(reviewParameters.MinRaiting, reviewParameters.MaxRaiting)
                 .Search(reviewParameters.SearchTerm)
+                .Sort(reviewParameters.OrderBy)
                 .ToListAsync();
 
             return PagedList<Review>.ToPagedList(reviews, reviewParameters.PageNumber, reviewParameters.PageSize);

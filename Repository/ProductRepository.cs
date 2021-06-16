@@ -23,6 +23,7 @@ namespace Repository
                 .Include(p => p.Directors)
                 .FilterProducts(productParameters.Categories, productParameters.Genres, productParameters.Countries)
                 .Search(productParameters.SearchTerm)
+                .Sort(productParameters.OrderBy)
                 .AsSplitQuery()
                 .ToListAsync();
 
