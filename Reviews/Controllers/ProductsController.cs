@@ -24,12 +24,14 @@ namespace Reviews.Controllers
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly IDataShaper<ProductDto> _dataShaper;
 
-        public ProductsController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public ProductsController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IDataShaper<ProductDto> dataShaper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _dataShaper = dataShaper;
         }
 
         [HttpGet]
@@ -41,7 +43,7 @@ namespace Reviews.Controllers
 
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
 
-            return Ok(productsDto);
+            return Ok(_dataShaper.ShapeData(productsDto, productParameters.Fields));
         }
 
         [HttpGet("{id}", Name = "ProductById")]

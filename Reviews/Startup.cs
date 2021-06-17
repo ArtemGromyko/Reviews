@@ -1,4 +1,5 @@
 using Contracts;
+using Entities.DataTransferObjects.GET;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+using Repository.DataShaping;
 using Reviews.ActionFilters;
 using Reviews.Extensions;
 using System.IO;
@@ -41,6 +43,9 @@ namespace Reviews
             services.AddScoped<ValidationReviewForProductExistsAttribute>();
             services.AddScoped<ValidationProductExistsAttribute>();
             services.AddScoped<ValidationPersonExistsAttribute>();
+            services.AddScoped<IDataShaper<ReviewDto>, DataShaper<ReviewDto>>();
+            services.AddScoped<IDataShaper<ProductDto>, DataShaper<ProductDto>>();
+            services.AddScoped<IDataShaper<PersonDto>, DataShaper<PersonDto>>();
 
             services.AddControllers().AddNewtonsoftJson();
         }
