@@ -35,6 +35,7 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public async Task<IActionResult> GetProducts([FromQuery]ProductParameters productParameters)
         {
             var products = await _repository.Product.GetAllProductsAsync(productParameters, false);
@@ -174,6 +175,14 @@ namespace Reviews.Controllers
             await _repository.SaveAsync();
 
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetProductsOptions()
+        {
+            Response.Headers.Add("Allow", "GET, POST, OPTIONS, HEAD");
+
+            return Ok();
         }
     }
 }

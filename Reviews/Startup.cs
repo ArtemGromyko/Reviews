@@ -47,7 +47,10 @@ namespace Reviews
             services.AddScoped<IDataShaper<ProductDto>, DataShaper<ProductDto>>();
             services.AddScoped<IDataShaper<PersonDto>, DataShaper<PersonDto>>();
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers(config =>
+            {
+                config.RespectBrowserAcceptHeader = true;
+            }).AddXmlDataContractSerializerFormatters().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

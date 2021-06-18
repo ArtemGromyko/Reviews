@@ -35,6 +35,7 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> GetReviewsForProduct(Guid productId, [FromQuery] ReviewParameters reviewParameters)
         {
@@ -163,6 +164,14 @@ namespace Reviews.Controllers
             await _repository.SaveAsync();
 
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetReviewsOptions()
+        {
+            Response.Headers.Add("Allow", "GET, POST, OPTIONS, HEAD");
+
+            return Ok();
         }
     }
 }

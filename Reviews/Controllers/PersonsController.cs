@@ -35,6 +35,7 @@ namespace Reviews.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public async Task<IActionResult> GetPersons([FromQuery]PersonParameters personParameters)
         {
             if (!personParameters.ValidParametersRange)
@@ -158,6 +159,14 @@ namespace Reviews.Controllers
             await _repository.SaveAsync();
 
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetPersonsOptions()
+        {
+            Response.Headers.Add("Allow", "GET, POST, OPTIONS, HEAD");
+
+            return Ok();
         }
     }
 }
