@@ -46,6 +46,7 @@ namespace Reviews
             services.AddScoped<IDataShaper<ReviewDto>, DataShaper<ReviewDto>>();
             services.AddScoped<IDataShaper<ProductDto>, DataShaper<ProductDto>>();
             services.AddScoped<IDataShaper<PersonDto>, DataShaper<PersonDto>>();
+            services.ConfigureVersioning();
 
             services.AddControllers(config =>
             {

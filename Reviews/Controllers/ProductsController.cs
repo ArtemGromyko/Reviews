@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace Reviews.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
