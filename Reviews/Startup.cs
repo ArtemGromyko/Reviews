@@ -47,10 +47,14 @@ namespace Reviews
             services.AddScoped<IDataShaper<ProductDto>, DataShaper<ProductDto>>();
             services.AddScoped<IDataShaper<PersonDto>, DataShaper<PersonDto>>();
             services.ConfigureVersioning();
+            services.ConfigureResponseCaching();
+            services.ConfigureHttpCacheHeaders();
 
             services.AddControllers(config =>
             {
                 config.RespectBrowserAcceptHeader = true;
+                config.ReturnHttpNotAcceptable = true;
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120});
             }).AddXmlDataContractSerializerFormatters().AddNewtonsoftJson();
         }
 
@@ -67,11 +71,8 @@ namespace Reviews
             }
 
             app.ConfigureExceptionHandler(logger);
-
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.UseCors("CorsPoliscy");
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -79,8 +80,9 @@ namespace Reviews
                 ForwardedHeaders = ForwardedHeaders.All
             });
 
+            app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

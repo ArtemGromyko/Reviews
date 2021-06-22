@@ -31,10 +31,10 @@ namespace Repository
         }
 
         public async Task<Product> GetProductAsync(Guid productid, bool trackChanges) =>
-            await FindAll(trackChanges)
+            await FindByCondition(p => p.Id.Equals(productid), trackChanges)
             .Include(p => p.Actors)
             .Include(p => p.Directors)
-            .Where(p => p.Id.Equals(productid))
+            .AsSplitQuery()
             .SingleOrDefaultAsync();
 
         public void CreateProduct(Product product) => Create(product);

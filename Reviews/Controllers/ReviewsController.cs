@@ -49,7 +49,7 @@ namespace Reviews.Controllers
 
             var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
-            return Ok(_dataShaper.ShapeData(reviewsDto, reviewParameters.Fields));
+            return Ok(reviewsDto);
         }
 
         [HttpGet("{id}", Name = "GetReviewForProduct")]

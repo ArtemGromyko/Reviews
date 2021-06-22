@@ -1,6 +1,7 @@
 ﻿using Entities.Configuration;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Entities
 {
@@ -21,6 +22,15 @@ namespace Entities
             modelBuilder.ApplyConfiguration(new PersonConfiguration());
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfiguration(new ReviewConfiguration());
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(w => 
+            {
+                w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+                w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning);
+            });
         }
     }
 }
