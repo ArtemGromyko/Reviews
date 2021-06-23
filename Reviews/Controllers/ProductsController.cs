@@ -5,6 +5,7 @@ using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Entities.RequestFeatures.Parameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ namespace Reviews.Controllers
     [ApiVersion("1.0")]
     [Route("api/products")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -100,7 +102,7 @@ namespace Reviews.Controllers
             return Ok(productsDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProduct([FromBody] ProductForCreationDto product)
@@ -113,7 +115,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("ProductById", new { id = productDto.Id }, productDto);
         }
 
-        [HttpPost("collection")]
+        [HttpPost("collection"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProductCollection([FromBody] IEnumerable<ProductForCreationDto> productCollection)
@@ -129,7 +131,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("ProductCollection", new { ids }, productsDto);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
@@ -141,7 +143,7 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
@@ -155,7 +157,7 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> PartiallyUpdateProduct(Guid id, [FromBody]JsonPatchDocument<ProductForUpdateDto> patchDoc)

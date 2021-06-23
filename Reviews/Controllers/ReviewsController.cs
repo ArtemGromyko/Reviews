@@ -5,6 +5,7 @@ using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ namespace Reviews.Controllers
     [ApiVersion("1.0")]
     [Route("api/products/{productId}/reviews")]
     [ApiController]
+    [Authorize]
     public class ReviewsController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -35,7 +37,7 @@ namespace Reviews.Controllers
             _dataShaper = dataShaper;
         }
 
-        [HttpGet]
+        [HttpGet(Name ="GetReviewsForProduct")]
         [HttpHead]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
         public async Task<IActionResult> GetReviewsForProduct(Guid productId, [FromQuery] ReviewParameters reviewParameters)
@@ -49,7 +51,7 @@ namespace Reviews.Controllers
 
             var reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
-            return Ok(reviewsDto);
+            return Ok(_dataShaper.ShapeData(reviewsDto, reviewParameters.Fields));
         }
 
         [HttpGet("{id}", Name = "GetReviewForProduct")]
@@ -83,7 +85,7 @@ namespace Reviews.Controllers
             return Ok(reviewsDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
@@ -99,7 +101,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("GetReviewForProduct", new { productId, id = reviewDto.Id }, reviewDto);
         }
 
-        [HttpPost("collection")]
+        [HttpPost("collection"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [ServiceFilter(typeof(ValidationProductExistsAttribute))]
@@ -116,7 +118,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("ReviewCollection", new { productId, ids }, reviewsDto);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationReviewForProductExistsAttribute))]
         public async Task<IActionResult> DeleteReviewForProduct(Guid productId, Guid id)
         {
@@ -129,7 +131,7 @@ namespace Reviews.Controllers
         }
 
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateReviewForProduct(Guid productId, Guid id, [FromBody]ReviewForUpdateDto review)
@@ -142,7 +144,7 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationReviewForProductExistsAttribute))]
         public async Task<IActionResult> PartiallyUpdateReviewForProduct(Guid productId, Guid id,

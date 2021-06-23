@@ -5,6 +5,7 @@ using Entities.DataTransferObjects.POST;
 using Entities.DataTransferObjects.PUT;
 using Entities.Models;
 using Entities.RequestFeatures.Parameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ namespace Reviews.Controllers
     [ApiVersion("1.0")]
     [Route("api/persons")]
     [ApiController]
+    [Authorize]
     public class PersonsController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -82,7 +84,7 @@ namespace Reviews.Controllers
             return Ok(personsDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles ="Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreatePerson([FromBody]PersonForCreationDto person)
@@ -97,7 +99,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("PersonById", new { id = personToReturn.Id}, personToReturn);
         }
 
-        [HttpPost("collection")]
+        [HttpPost("collection"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreatePersonCollection([FromBody] IEnumerable<PersonForCreationDto> personCollection)
@@ -113,7 +115,7 @@ namespace Reviews.Controllers
             return CreatedAtRoute("PersonCollection", new { ids }, personsDto);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
         public async Task<IActionResult> DeletePerson(Guid id)
         {
@@ -125,7 +127,7 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
@@ -139,7 +141,7 @@ namespace Reviews.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}"), Authorize(Roles = "Administrator")]
         [ServiceFilter(typeof(ValidationNullArgumentAttribute))]
         [ServiceFilter(typeof(ValidationPersonExistsAttribute))]
         public async Task<IActionResult> PartiallyUpdatePerson(Guid id, [FromBody] JsonPatchDocument<PersonForUpdateDto> patchDoc)

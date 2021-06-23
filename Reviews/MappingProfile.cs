@@ -25,6 +25,8 @@ namespace Reviews
             CreateMap<ProductForCreationDto, Product>().ReverseMap();
             CreateMap<ReviewForCreationDto, Review>().ReverseMap();
 
+            CreateMap<UserForRegistrationDto, User>();
+
             CreateMap<PersonForUpdateDto, Person>().ReverseMap();
             CreateMap<ProductForUpdateDto, Product>().ReverseMap();
             CreateMap<ReviewForUpdateDto, Review>().ReverseMap();
