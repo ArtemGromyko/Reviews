@@ -22,6 +22,7 @@ namespace Reviews.Controllers
     [Route("api/persons")]
     [ApiController]
     [Authorize]
+    [ApiExplorerSettings(GroupName ="v1")]
     public class PersonsController : ControllerBase
     {
         private readonly IRepositoryManager _repository;

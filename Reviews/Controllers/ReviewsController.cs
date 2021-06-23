@@ -22,6 +22,7 @@ namespace Reviews.Controllers
     [Route("api/products/{productId}/reviews")]
     [ApiController]
     [Authorize]
+    [ApiExplorerSettings(GroupName = "v1")]
     public class ReviewsController : ControllerBase
     {
         private readonly IRepositoryManager _repository;

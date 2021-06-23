@@ -8,6 +8,7 @@ namespace Reviews.Controllers
     [ApiVersion("2.0")]
     [Route("api/persons")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v2")]
     public class PersonsV2Controller : ControllerBase
     {
         private readonly IRepositoryManager _repository;
